@@ -34,7 +34,7 @@ public function dashboard()
     echo view('footer');
 }
 
-public function login()
+    public function login()
 	{
         $model = new M_bel();
         $data['setting'] = $model->getWhere('tb_setting', ['id_setting' => 1]);
