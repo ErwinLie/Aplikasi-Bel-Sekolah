@@ -72,7 +72,7 @@
           </div>
         </form>
         <ul class="navbar-nav navbar-right">
-          <!-- <li class="dropdown dropdown-list-toggle"><a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle beep"><i class="far fa-envelope"></i></a>
+          <li class="dropdown dropdown-list-toggle"><a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle beep"><i class="far fa-envelope"></i></a>
             <div class="dropdown-menu dropdown-list dropdown-menu-right">
               <div class="dropdown-header">Messages
                 <div class="float-right">
@@ -137,8 +137,8 @@
                 <a href="#">View All <i class="fas fa-chevron-right"></i></a>
               </div>
             </div>
-          </li> -->
-          <!-- <li class="dropdown dropdown-list-toggle"><a href="#" data-toggle="dropdown" class="nav-link notification-toggle nav-link-lg beep"><i class="far fa-bell"></i></a>
+          </li>
+          <li class="dropdown dropdown-list-toggle"><a href="#" data-toggle="dropdown" class="nav-link notification-toggle nav-link-lg beep"><i class="far fa-bell"></i></a>
             <div class="dropdown-menu dropdown-list dropdown-menu-right">
               <div class="dropdown-header">Notifications
                 <div class="float-right">
@@ -196,23 +196,28 @@
                 <a href="#">View All <i class="fas fa-chevron-right"></i></a>
               </div>
             </div>
-          </li> -->
+          </li>
           <li class="dropdown"><a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
-            <!-- <img alt="image" src="assets/img/avatar/avatar-1.png" class="rounded-circle mr-1"> -->
-            <div class="d-sm-none d-lg-inline-block">Hi</div></a>
+          <?php
+            $foto_profil = ($user->foto) ? asset ('img/avatar/' . $user->foto) : asset ('img/avatar/user.png');
+        ?>
+            <img alt="image" src="<?= $foto_profil ?>" class="rounded-circle mr-1">
+            <div class="d-sm-none d-lg-inline-block">Hi, {{$user->username}} </div></a>
             <div class="dropdown-menu dropdown-menu-right">
               <div class="dropdown-title">Logged in 5 min ago</div>
-              <!-- <a href="features-profile.html" class="dropdown-item has-icon">
+              <a href="{{ url ('home/profile') }}" class="dropdown-item has-icon">
                 <i class="far fa-user"></i> Profile
-              </a> -->
-              <!-- <a href="{{url('logactivity')}}" class="dropdown-item has-icon">
+              </a>
+              <?php if(session()->get('id_level')==1 ) { ?>
+              <a href="{{ url ('activity') }}" class="dropdown-item has-icon">
                 <i class="fas fa-bolt"></i> Activities
-              </a> -->
-              <a href="{{url('setting')}}" class="dropdown-item has-icon">
+              </a>
+              <a href="{{ url ('setting') }}" class="dropdown-item has-icon">
                 <i class="fas fa-cog"></i> Settings
               </a>
+              <?php } ?>
               <div class="dropdown-divider"></div>
-              <a href="{{url('logout')}}" class="dropdown-item has-icon text-danger">
+              <a href="{{ url ('logout') }}" class="dropdown-item has-icon text-danger">
                 <i class="fas fa-sign-out-alt"></i> Logout
               </a>
             </div>
@@ -221,22 +226,26 @@
       </nav>
       <div class="main-sidebar sidebar-style-2">
         <aside id="sidebar-wrapper">
-          <!-- <div class="sidebar-brand">
-            <a href="index.html">Galeri</a>
-          </div> -->
-          <!-- <div class="sidebar-brand sidebar-brand-sm">
-            <a href="index.html">Gl</a>
-          </div> -->
+          <div class="sidebar-brand">
+          <img src="{{ asset ('img/avatar/' . $setting->logo_dashboard) }}" class="logo-dashboard" width="180px">
+          <br>
+          <a href="{{ url ('home/dashboard') }}"><?= $setting->nama_web ?></a>
+
+          </div>
+          <div class="sidebar-brand sidebar-brand-sm">
+            <a href="index.html">St</a>
+          </div>
           <ul class="sidebar-menu">
             <li class="menu-header">Dashboard</li>
             <li class="active">
-              <a href="{{url('dashboard')}}"><i class="fas fa-fire"></i><span>Dashboard</span></a>
+              <a href="{{ url ('home/dashboard') }}" class="nav-link"><i class="fas fa-fire"></i><span>Dashboard</span></a>
               <!-- <ul class="dropdown-menu">
-                <li><a class="nav-link" href="index-0.html">General Dashboard</a></li>
-                <li class=active><a class="nav-link" href="index.html">Ecommerce Dashboard</a></li>
+                <li class=active><a class="nav-link" href="index-0.html">General Dashboard</a></li>
+                <li><a class="nav-link" href="index.html">Ecommerce Dashboard</a></li>
               </ul> -->
+              </li>
             </li>
-            <li class="menu-header">Starter</li>
+            <li class="menu-header">Data</li>
             <!-- <li class="dropdown">
               <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-columns"></i> <span>Layout</span></a>
               <ul class="dropdown-menu">
@@ -245,40 +254,44 @@
                 <li><a class="nav-link" href="layout-top-navigation.html">Top Navigation</a></li>
               </ul>
             </li> -->
-            <li><a class="nav-link" href="{{url('databarang')}}"><i class="fas fa-columns"></i> <span>Barang</span></a></li>
-            <li><a class="nav-link" href="{{url('penjualan')}}"><i class="fas fa-columns"></i> <span>Penjualan</span></a></li>
+
+            <!-- <li><a class="nav-link" href="{{ url ('home/surat_keterlambatan_hadir') }}"><i class="fas fa-fire"></i> <span>Pengumuman</span></a></li> -->
+
+            <li><a class="nav-link" href="{{ url ('home/event') }}"><i class="fas fa-fire"></i> <span>Event</span></a></li>
+
+            <li><a class="nav-link" href="{{ url ('home/jadwal') }}"><i class="fas fa-fire"></i> <span>Member</span></a></li>
+
+            <li><a class="nav-link" href="{{ url ('home/surat_keterlambatan_hadir') }}"><i class="fas fa-fire"></i> <span>Transaksi</span></a></li>
+
+            <li><a class="nav-link" href="{{ url ('home/surat_keterlambatan_hadir') }}"><i class="fas fa-fire"></i> <span>Kasir</span></a></li>
+
+            <!-- <li><a class="nav-link" href="{{ url ('home/surat_keterlambatan_hadir') }}"><i class="fas fa-fire"></i> <span>Kelas</span></a></li>
+
+            <li><a class="nav-link" href="{{ url ('home/surat_keterlambatan_hadir') }}"><i class="fas fa-fire"></i> <span>Jurusan</span></a></li>
+
+            <li><a class="nav-link" href="{{ url ('home/surat_keterlambatan_hadir') }}"><i class="fas fa-fire"></i> <span>Murid</span></a></li> -->
+
+            <!-- <li><a class="nav-link" href="{{ url ('home/surat_keterlambatan_hadir') }}"><i class="far fa-user"></i> <span>Pemesanan</span></a></li>
+
+            <li><a class="nav-link" href="{{ url ('home/surat_keterlambatan_hadir') }}"><i class="far fa-user"></i> <span>Paket</span></a></li> -->
+            
             <!-- <li class="dropdown">
-              <a href="#" class="nav-link has-dropdown"><i class="fas fa-th"></i> <span>Bootstrap</span></a>
+              <a href="#" class="nav-link has-dropdown"><i class="fas fa-envelope"></i> <span>Surat</span></a>
               <ul class="dropdown-menu">
-                <li><a class="nav-link" href="bootstrap-alert.html">Alert</a></li>
-                <li><a class="nav-link" href="bootstrap-badge.html">Badge</a></li>
-                <li><a class="nav-link" href="bootstrap-breadcrumb.html">Breadcrumb</a></li>
-                <li><a class="nav-link" href="bootstrap-buttons.html">Buttons</a></li>
-                <li><a class="nav-link" href="bootstrap-card.html">Card</a></li>
-                <li><a class="nav-link" href="bootstrap-carousel.html">Carousel</a></li>
-                <li><a class="nav-link" href="bootstrap-collapse.html">Collapse</a></li>
-                <li><a class="nav-link" href="bootstrap-dropdown.html">Dropdown</a></li>
-                <li><a class="nav-link" href="bootstrap-form.html">Form</a></li>
-                <li><a class="nav-link" href="bootstrap-list-group.html">List Group</a></li>
-                <li><a class="nav-link" href="bootstrap-media-object.html">Media Object</a></li>
-                <li><a class="nav-link" href="bootstrap-modal.html">Modal</a></li>
-                <li><a class="nav-link" href="bootstrap-nav.html">Nav</a></li>
-                <li><a class="nav-link" href="bootstrap-navbar.html">Navbar</a></li>
-                <li><a class="nav-link" href="bootstrap-pagination.html">Pagination</a></li>
-                <li><a class="nav-link" href="bootstrap-popover.html">Popover</a></li>
-                <li><a class="nav-link" href="bootstrap-progress.html">Progress</a></li>
-                <li><a class="nav-link" href="bootstrap-table.html">Table</a></li>
-                <li><a class="nav-link" href="bootstrap-tooltip.html">Tooltip</a></li>
-                <li><a class="nav-link" href="bootstrap-typography.html">Typography</a></li>
+                <li><a class="nav-link" href="{{ url ('home/surat_keterlambatan_hadir') }}">Surat Masuk</a></li>
+                <li><a class="nav-link" href="{{ url ('home/surat_keterlambatan_hadir') }}">Surat Keluar</a></li>
+                <li><a class="nav-link" href="{{ url ('home/surat_keterlambatan_hadir') }}">Surat Pengajuan Cuti</a></li>
+                <li><a class="nav-link" href="{{ url ('home/surat_keterlambatan_hadir') }}">Surat Keterlambatan Hadir</a></li>
               </ul>
             </li> -->
-            <li class="menu-header">Other</li>
-            <!-- <li><a class="nav-link" href="{{url('home/restore_edit_album')}}"><i class="fas fa-columns"></i> <span>Restore Edit Album</span></a></li> -->
-            <li><a class="nav-link" href="{{url('pelanggan')}}"><i class="fas fa-columns"></i> <span>User</span></a></li>
-            <!-- <li class="dropdown">
+
+            
+
+            <!-- <li class="menu-header">Restore Edit & Hapus</li>
+            <li class="dropdown">
               <a href="#" class="nav-link has-dropdown"><i class="fas fa-th-large"></i> <span>Restore Edit</span></a>
               <ul class="dropdown-menu">
-                <li><a class="nav-link" href="{{url('home/pelanggan')}}">User</a></li>                 -->
+                
                 <!-- <li><a class="nav-link beep beep-sidebar" href="components-avatar.html">Avatar</a></li>                
                 <li><a class="nav-link" href="components-chat-box.html">Chat Box</a></li>                
                 <li><a class="nav-link beep beep-sidebar" href="components-empty-state.html">Empty State</a></li>                
@@ -296,13 +309,14 @@
             <!-- <li class="dropdown">
               <a href="#" class="nav-link has-dropdown"><i class="far fa-file-alt"></i> <span>Restore Hapus</span></a>
               <ul class="dropdown-menu">
-                <li><a class="nav-link" href="{{ url('home/restore_hapus_album') }}">Restore Hapus Album</a></li> -->
+
                 <!-- <li><a class="nav-link" href="forms-editor.html">Editor</a></li>
                 <li><a class="nav-link" href="forms-validation.html">Validation</a></li> -->
               <!-- </ul>
             </li> -->
+            
             <!-- <li class="dropdown">
-              <a href="#" class="nav-link has-dropdown"><i class="fas fa-map-marker-alt"></i> <span>Google Maps</span></a>
+              <a href="#" class="nav-link has-dropdown"><i class="fas fa-map-marker-alt"></i> <span>Restore Hapus</span></a>
               <ul class="dropdown-menu">
                 <li><a href="gmaps-advanced-route.html">Advanced Route</a></li>
                 <li><a href="gmaps-draggable-marker.html">Draggable Marker</a></li>
@@ -313,9 +327,9 @@
                 <li><a href="gmaps-route.html">Route</a></li>
                 <li><a href="gmaps-simple.html">Simple</a></li>
               </ul>
-            </li>            
-            <li class="dropdown"> -->
-              <!-- <a href="#" class="nav-link has-dropdown"><i class="fas fa-plug"></i> <span>Modules</span></a>
+            </li>            -->
+            <!-- <li class="dropdown">
+              <a href="#" class="nav-link has-dropdown"><i class="fas fa-plug"></i> <span>Modules</span></a>
               <ul class="dropdown-menu">
                 <li><a class="nav-link" href="modules-calendar.html">Calendar</a></li>
                 <li><a class="nav-link" href="modules-chartjs.html">ChartJS</a></li>
@@ -331,8 +345,8 @@
                 <li><a class="nav-link" href="modules-weather-icon.html">Weather Icon</a></li>
               </ul>
             </li> -->
-            <!-- <li class="menu-header">Pages</li>
-            <li class="dropdown">
+            <!-- <li class="menu-header">Restore Hapus</li> -->
+            <!-- <li class="dropdown">
               <a href="#" class="nav-link has-dropdown"><i class="far fa-user"></i> <span>Auth</span></a>
               <ul class="dropdown-menu">
                 <li><a href="auth-forgot-password.html">Forgot Password</a></li> 
@@ -381,5 +395,6 @@
         </aside>
       </div>
 
-      </div>
-</section>
+     
+          </div>
+        </section>

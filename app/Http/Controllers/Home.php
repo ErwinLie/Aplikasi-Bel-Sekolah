@@ -27,7 +27,10 @@ public function dashboard()
     $userId = session()->get('id_user');
     $username = session()->get('username');
 
-    $data['darren2'] = $model->getWhere('tb_setting', ['id_setting' => 1]);
+    $where = array('id_user' => session()->get('id_user'));
+	$data['user'] = $model->getWhere('tb_user', $where);
+
+    $data['setting'] = $model->getWhere('tb_setting', ['id_setting' => 1]);
 
     echo view('header', $data);
     echo view('menu', $data);
@@ -46,108 +49,128 @@ public function dashboard()
        // tes
        //tolong kaki saya sakit
 
-    public function aksi_login(Request $request)
-    {
-        // Mengakses input dari request
-        $name = $request->input('username');
-        $pw = $request->input('password');
-        $captchaResponse = $request->input('g-recaptcha-response');
-        $backupCaptcha = $request->input('backup_captcha');
-        
-        // Secret key untuk Google reCAPTCHA
-        $secretKey = '6LdFhCAqAAAAAM1ktawzN-e2ebDnMnUQgne7cy53'; 
-        $recaptchaSuccess = false;
-        
-        // Membuat instance model
-        $model = new M_bel(); 
-        
-        // Cek koneksi internet dari sisi server
-        if ($this->isInternetAvailable()) {
-            // Server terhubung ke internet, gunakan Google reCAPTCHA
-            $response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secretKey&response=$captchaResponse");
-            $responseKeys = json_decode($response, true);
-            $recaptchaSuccess = $responseKeys["success"];
-        }
-        
-        // Jika reCAPTCHA Google berhasil diverifikasi
-        if ($recaptchaSuccess) {
-            // Dapatkan pengguna berdasarkan username
-            $user = $model->getWhere('tb_user', ['username' => $name]);
-            
-            if ($user && $user->password === $pw) { // Verifikasi password tanpa hash
-                // Set session
-                session()->put('username', $user->username);
-                session()->put('id_user', $user->id_user);
-                session()->put('id_level', $user->id_level);
+       public function aksi_login(Request $request)
+       {
+           $u = $request->input('username');
+           $p = $request->input('password');
+           $captchaAnswer = $request->input('captcha_answer');
+       
+           // Log the activity
+           $this->logActivity('User melakukan Login');
+       
+           $user = DB::table('tb_user')
+               ->where('username', $u)
+               ->where('password', md5($p))
+               ->first();
+       
+           // Offline CAPTCHA answer (should match the one generated in the view)
+           if (!$this->isOnline() && !empty($captchaAnswer)) {
+               $correctAnswer = $request->input('correct_captcha_answer');
+               if ($captchaAnswer != $correctAnswer) {
+                   return redirect()->route('login')->with('error', 'Incorrect offline CAPTCHA.');
+               }
+           }
+       
+           if ($user) {
+               // Handle sessions as usual
+               session([
+                   'id_user' => $user->id_user,
+                   'id_level' => $user->id_level,
+                //    'email' => $user->email,
+                   'username' => $user->username,
+               ]);
+       
+               // Redirect to the dashboard
+               return redirect()->route('dashboard');
+           } else {
+               return redirect()->route('login')->with('error', 'Invalid username or password.');
+           }
+       }
+       
+       // Function to check if the client is online
+       private function isOnline()
+       {
+           // A simple method to check if the client is online (can be more sophisticated)
+           return @fopen("http://www.google.com:80/", "r") ? true : false;
+       }
+       
+       // Function to log activity
+       private function logActivity($activity)
+       {
+           // Data to be inserted into the table
+           $data = [
+               'id_user'   => session('id_user'), // Access session data in Laravel
+               'activity'  => $activity,
+               'timestamp' => now(), // Laravel helper for current timestamp
+            //    'delete_at' => 0, // Assuming 0 indicates not deleted
+           ];
+       
+           // Insert the data into the 'tb_activity' table using Laravel's DB facade
+           DB::table('tb_activity')->insert($data);
+       }
     
-                return redirect()->to('dashboard');
-            } else {
-                return redirect()->to('login')->with('error', 'Invalid username or password.');
-            }
-        } else {
-            $storedCaptcha = session()->get('captcha_code'); 
-            
-            if ($storedCaptcha !== null) {
-                // Verifikasi backup CAPTCHA (offline)
-                if ($storedCaptcha === $backupCaptcha) {
-                    // CAPTCHA valid, lanjutkan login
-                    $user = $model->getWhere('user', ['username' => $name]);
-    
-                    if ($user && $user->password === $pw) { // Verifikasi password tanpa hash
-                        // Set session
-                        session()->put('username', $user->username);
-                        session()->put('id_user', $user->id_user);
-                        session()->put('id_level', $user->id_level);
-    
-                        return redirect()->to('dashboard');
-                    } else {
-                        return redirect()->to('login')->with('error', 'Invalid username or password.');
-                    }
-                } else {
-                    // CAPTCHA tidak valid
-                    return redirect()->to('login')->with('error', 'Invalid CAPTCHA.');
-                }
-            } else {
-                return redirect()->to('login')->with('error', 'CAPTCHA session is not set.');
-            }
-        }
-    }
-    
-    private function isInternetAvailable()
-    {
+       public function setting()
+       {
+           if (session('id_level') == '1') {
+               $this->logActivity('User Membuka Menu Setting');
+       
+               // Ambil data user berdasarkan id_user dari session
+               $user = DB::table('tb_user')->where('id_user', session('id_user'))->first();
+       
+               // Ambil data setting berdasarkan id_setting
+               $setting = DB::table('tb_setting')->where('id_setting', 1)->first();
+       
+               // Kirim data ke view
+               $data = [
+                   'user' => $user,
+                   'setting' => $setting,
+               ];
+       
+               return view('header', $data)
+                   ->with(view('menu', $data))
+                   ->with(view('setting', $data))
+                   ->with(view('footer'));
+           } else {
+               return redirect()->route('error404');
+           }
+       }
 
-        $connected = @fsockopen("www.google.com", 80); 
-        if ($connected){
-            fclose($connected);
-            return true;
-        }
-        return false;
-    }
-    
+       public function aksi_e_setting(Request $request)
+{
+    $this->logActivity('User Melakukan Edit Setting');
 
-    public function generateCaptcha()
-    {
-        $code = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 6);
-        session()->put('captcha_code', $code);
-    
-        $image = imagecreatetruecolor(120, 40);
-        $bgColor = imagecolorallocate($image, 255, 255, 255);
-        $textColor = imagecolorallocate($image, 0, 0, 0);
-    
-        imagefilledrectangle($image, 0, 0, 120, 40, $bgColor);
-        imagestring($image, 5, 10, 10, $code, $textColor);
-    
-        ob_start();
-        imagepng($image);
-        $imageData = ob_get_contents();
-        ob_end_clean();
-    
-        imagedestroy($image);
-    
-        return response($imageData)
-                    ->header('Content-Type', 'image/png'); 
+    $a = $request->input('nama_web');
+    $icon = $request->file('logo_tab');
+    $dash = $request->file('logo_dashboard');
+    $login = $request->file('logo_login');
+
+    // Data yang akan diupdate
+    $data = ['nama_web' => $a];
+
+    // Proses file logo_tab
+    if ($icon && $icon->isValid()) {
+        $iconPath = $icon->storeAs('public/img/avatar', $icon->getClientOriginalName());
+        $data['logo_tab'] = basename($iconPath);
     }
-    
+
+    // Proses file logo_dashboard
+    if ($dash && $dash->isValid()) {
+        $dashPath = $dash->storeAs('public/img/avatar', $dash->getClientOriginalName());
+        $data['logo_dashboard'] = basename($dashPath);
+    }
+
+    // Proses file logo_login
+    if ($login && $login->isValid()) {
+        $loginPath = $login->storeAs('public/img/avatar', $login->getClientOriginalName());
+        $data['logo_login'] = basename($loginPath);
+    }
+
+    // Update data ke database
+    DB::table('tb_setting')->where('id_setting', 1)->update($data);
+
+    return redirect()->route('setting');
+}
+
     public function logout()
     {
         $model = new M_bel();
@@ -157,4 +180,49 @@ public function dashboard()
         session()->flush();
         return redirect()->route('login'); 
     }
+
+    public function activity()
+{
+    if (session('id_level') > 0) {
+        $this->logActivity('User membuka Log Activity');
+
+        // Ambil data user berdasarkan id_user dari session
+        $user = DB::table('tb_user')->where('id_user', session('id_user'))->first();
+
+        // Ambil data setting berdasarkan id_setting
+        $setting = DB::table('tb_setting')->where('id_setting', 1)->first();
+
+        // Ambil data aktivitas dengan join ke tb_user
+        $activities = DB::table('tb_activity')
+            ->join('tb_user', 'tb_activity.id_user', '=', 'tb_user.id_user')
+            ->select('tb_activity.*', 'tb_user.username')
+            ->where('tb_activity.id_user', session('id_user'))
+            ->get();
+
+        // Kirim data ke view
+        $data = [
+            'user' => $user,
+            'setting' => $setting,
+            'erwin' => $activities,
+        ];
+
+        return view('header', $data)
+            ->with(view('menu', $data))
+            ->with(view('activity', $data))
+            ->with(view('footer'));
+    } else {
+        return redirect()->route('login');
+    }
+}
+
+public function hapus_activity($id)
+{
+    $this->logActivity('User Melakukan Hapus Activity');
+
+    // Hapus data activity berdasarkan id_activity
+    DB::table('tb_activity')->where('id_activity', $id)->delete();
+
+    return redirect()->route('activity');
+}
+
 }
