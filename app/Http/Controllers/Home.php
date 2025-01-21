@@ -44,6 +44,7 @@ public function dashboard()
 	}
 
        // tes
+       //tolong kaki saya sakit
 
     public function aksi_login(Request $request)
     {
