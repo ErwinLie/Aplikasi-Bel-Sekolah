@@ -43,7 +43,7 @@ public function dashboard()
         echo view('footer');
 	}
 
-    
+       // tes
 
     public function aksi_login(Request $request)
     {
