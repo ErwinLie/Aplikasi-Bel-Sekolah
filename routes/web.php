@@ -16,3 +16,5 @@ use App\Http\Controllers\Home;
 Route::get('home/dashboard', [Home::class, 'dashboard'])->name('dashboard');
 
 Route::get('home/login',  [Home::class, 'login'])->name('login');
+
+Route::post('home/aksi_login', [Home::class, 'aksi_login']);
