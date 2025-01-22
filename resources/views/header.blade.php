@@ -5,6 +5,8 @@
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
   <title>{{ $setting->nama_web }}</title>
 
+  <link href="{{ url ('img/avatar/' . htmlspecialchars($setting->logo_tab)) }}" rel="icon">
+
   <!-- General CSS Files -->
   <link rel="stylesheet" href="{{asset('modules/bootstrap/css/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{asset('modules/fontawesome/css/all.min.css') }}">

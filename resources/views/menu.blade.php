@@ -209,15 +209,15 @@
                 <i class="far fa-user"></i> Profile
               </a>
               <?php if(session()->get('id_level')==1 ) { ?>
-              <a href="{{ url ('activity') }}" class="dropdown-item has-icon">
+              <a href="{{ url ('home/activity') }}" class="dropdown-item has-icon">
                 <i class="fas fa-bolt"></i> Activities
               </a>
-              <a href="{{ url ('setting') }}" class="dropdown-item has-icon">
+              <a href="{{ url ('home/setting') }}" class="dropdown-item has-icon">
                 <i class="fas fa-cog"></i> Settings
               </a>
               <?php } ?>
               <div class="dropdown-divider"></div>
-              <a href="{{ url ('logout') }}" class="dropdown-item has-icon text-danger">
+              <a href="{{ url ('home/logout') }}" class="dropdown-item has-icon text-danger">
                 <i class="fas fa-sign-out-alt"></i> Logout
               </a>
             </div>

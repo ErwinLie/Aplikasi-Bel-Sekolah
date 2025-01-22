@@ -126,14 +126,79 @@ public function dashboard()
                    'setting' => $setting,
                ];
        
-               return view('header', $data)
-                   ->with(view('menu', $data))
-                   ->with(view('setting', $data))
-                   ->with(view('footer'));
+               echo view('header', $data);
+                   echo view('menu', $data);
+                   echo view('setting', $data);
+                   echo view('footer');
            } else {
                return redirect()->route('error404');
            }
        }
+
+       public function profile()
+       {
+           if (session('id_level') == '1') {
+               $this->logActivity('User Membuka Menu Profile');
+       
+               // Ambil data user berdasarkan id_user dari session
+               $user = DB::table('tb_user')->where('id_user', session('id_user'))->first();
+       
+               // Ambil data setting berdasarkan id_setting
+               $setting = DB::table('tb_setting')->where('id_setting', 1)->first();
+
+               $darren = DB::table('tb_user')->where('id_user', session('id_user'))->first();
+       
+               // Kirim data ke view
+               $data = [
+                   'user' => $user,
+                   'setting' => $setting,
+                   'darren' => $darren
+               ];
+       
+                echo view('header', $data);
+                   echo view('menu', $data);
+                   echo view('profile', $data);
+                   echo view('footer');
+           } else {
+               return redirect()->route('login');
+           }
+       }
+
+       public function editfoto(Request $request)
+{
+    $model = new M_bel();
+
+    // Log aktivitas pengguna
+    $this->logActivity('User Mengedit Foto Profile');
+
+    // Mendapatkan ID pengguna yang sedang login
+    // $userId = Auth::id();
+    $userId = session()->get('id_user');
+    $user = $model->getById($userId);
+
+    // Periksa apakah file foto diunggah
+    if ($request->hasFile('foto') && $request->file('foto')->isValid()) {
+        $file = $request->file('foto');
+
+        // Buat nama file baru
+        $newFileName = $file->hashName();
+
+        // Simpan file ke folder public/img/avatar
+        $file->storeAs('public/img/avatar', $newFileName);
+
+        // Jika pengguna sudah memiliki foto lama, hapus file lama
+        if ($user->foto && file_exists(public_path('img/avatar/' . $user->foto))) {
+            unlink(public_path('img/avatar/' . $user->foto));
+        }
+
+        // Perbarui nama file foto di database
+        $user->foto = $newFileName;
+        $user->save();
+    }
+
+    // Redirect ke halaman profil
+    return redirect()->route('profile')->with('success', 'Foto profil berhasil diperbarui.');
+}
 
        public function aksi_e_setting(Request $request)
 {
@@ -206,10 +271,10 @@ public function dashboard()
             'erwin' => $activities,
         ];
 
-        return view('header', $data)
-            ->with(view('menu', $data))
-            ->with(view('activity', $data))
-            ->with(view('footer'));
+        echo view('header', $data);
+        echo view('menu', $data);
+        echo view('activity', $data);
+        echo view('footer');
     } else {
         return redirect()->route('login');
     }

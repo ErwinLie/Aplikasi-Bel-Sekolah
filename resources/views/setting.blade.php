@@ -14,7 +14,7 @@
           </div>
 
           <form action="{{ route ('aksi_e_setting') }}" method="POST" enctype="multipart/form-data">
-
+            @csrf
           <div class="section-body">
             <h2 class="section-title">All About Settings</h2>
             <p class="section-lead">
