@@ -7,6 +7,10 @@ use Illuminate\Support\Facades\DB;
 
 class M_bel extends Model
 {
+    public function getById($id)
+{
+    return User::find($id);
+}
 
     public function sqlquery($query)
     {
