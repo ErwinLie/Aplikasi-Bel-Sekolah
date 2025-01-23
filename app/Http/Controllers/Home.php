@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+
 
 
 class Home extends BaseController
@@ -394,11 +396,14 @@ public function jadwal()
         $setting = DB::table('tb_setting')->where('id_setting', 1)->first();
 
         // join tb_jadwal dengan tb_event berdasarkan id_event
-        $jadwals = $model->join('tb_jadwal', 
+        $jadwals = $model->join3tbl('tb_jadwal', 
         'tb_event', 
-        'tb_jadwal.id_event', 'tb_event.id_event');
+        'tb_jadwal.id_event', 'tb_event.id_event',
+        'tb_bell', 
+        'tb_jadwal.id_bell', 'tb_bell.id_bell');
 
         $events= $model->tampil('tb_event');
+        $bells= $model->tampil('tb_bell');
 
         // Kirim data ke view
         $data = [
@@ -406,6 +411,7 @@ public function jadwal()
             'setting' => $setting,
             'jadwals' => $jadwals,
             'events' => $events,
+            'bells' => $bells,
         ];
 
         echo view('header', $data);
@@ -421,30 +427,28 @@ public function aksi_t_jadwal(Request $request)
 {
     $model = new M_bel();
 
+    // Log aktivitas awal
+    Log::info('User mulai menambahkan jadwal.');
+
     $this->logActivity('User Melakukan Tambah Jadwal');
 
-    // Validate the input
-    $request->validate([
-        'id_event' => 'required|integer|exists:tb_event,id_event',
-        'sesi' => 'required|string|max:255',
-        'jam_mulai' => 'required|date_format:H:i',
-        'jam_selesai' => 'required|date_format:H:i',
-    ]);
+    $bellFile = $request->file('bell');
+        $bellFileName = time() . '_' . $bellFile->getClientOriginalName();
+        $bellFile->move(public_path('img/uploads/'), $bellFileName);
 
-    // Prepare the data to be inserted
     $data = [
         'id_event' => $request->input('id_event'),
         'sesi' => $request->input('sesi'),
         'jam_mulai' => $request->input('jam_mulai'),
         'jam_selesai' => $request->input('jam_selesai'),
+        'bell' => 'img/uploads/' . $bellFileName, // Simpan path file
     ];
 
-    // Insert the data into the tb_jadwal table
     $model->tambah('tb_jadwal', $data);
-
-    // Redirect to jadwal page with success message
+    // print_r($data);
     return redirect()->route('jadwal')->with('success', 'Jadwal berhasil ditambahkan.');
 }
+
 
 public function aksi_e_jadwal(Request $request)
 {
@@ -459,6 +463,7 @@ public function aksi_e_jadwal(Request $request)
         'sesi' => 'required|string|max:255',
         'jam_mulai' => 'required|date_format:H:i',
         'jam_selesai' => 'required|date_format:H:i',
+        'bell' => 'required|file|mimes:mp3,wav|max:10240', // Maksimal 10MB
     ]);
 
     // Get the data from the form
@@ -467,6 +472,7 @@ public function aksi_e_jadwal(Request $request)
     $sesi = $request->input('sesi');
     $jam_mulai = $request->input('jam_mulai');
     $jam_selesai = $request->input('jam_selesai');
+    $bell = $request->input('bell');
 
     // Prepare the data to be updated
     $data = [
@@ -474,6 +480,7 @@ public function aksi_e_jadwal(Request $request)
         'sesi' => $sesi,
         'jam_mulai' => $jam_mulai,
         'jam_selesai' => $jam_selesai,
+        'bell' => $bell,
     ];
 
     // Update the data in the tb_jadwal table
@@ -493,5 +500,130 @@ public function hapus_jadwal($id)
 
     return redirect()->route('jadwal');
 }
+
+public function bell()
+{
+    if (session('id_level') == '1') {
+        $this->logActivity('User Membuka Menu Bell');
+
+        $model = new M_bel();
+
+        // Ambil data user berdasarkan id_user dari session
+        $user = DB::table('tb_user')->where('id_user', session('id_user'))->first();
+
+        // Ambil data setting berdasarkan id_setting
+        $setting = DB::table('tb_setting')->where('id_setting', 1)->first();
+
+        // Panggil model dan gunakan method tampil untuk mengambil data dari tb_event
+        $bells = $model->tampil('tb_bell');
+
+        // Kirim data ke view
+        $data = [
+            'user' => $user,
+            'setting' => $setting,
+            'bells' => $bells,
+        ];
+
+        echo view('header', $data);
+            echo view('menu', $data);
+            echo view('bell', $data);
+            echo view('footer');
+    } else {
+        return redirect()->route('login');
+    }
+}
+
+public function aksi_t_bell(Request $request)
+{
+    $model = new M_bel();
+
+    // Log aktivitas awal
+    Log::info('User mulai menambahkan bell.');
+
+    $this->logActivity('User Melakukan Tambah Bell');
+
+    // Upload file bell
+    $bellFile = $request->file('file_bell');
+    $bellFileName = time() . '_' . $bellFile->getClientOriginalName();
+    $bellFile->move(public_path('img/uploads/'), $bellFileName);
+
+    // Data yang akan disimpan
+    $data = [
+        'nama_bell' => $request->input('nama_bell'),
+        'file_bell' => 'img/uploads/' . $bellFileName, // Simpan path file
+    ];
+
+    $model->tambah('tb_bell', $data);
+
+    return redirect()->route('bell')->with('success', 'Bell berhasil ditambahkan.');
+}
+
+public function e_bell($id)
+{
+    if (session('id_level') == '1') {
+        $this->logActivity('User Membuka Menu Edit Bell');
+
+        $model = new M_bel();
+
+        // Ambil data user berdasarkan id_user dari session
+        $user = DB::table('tb_user')->where('id_user', session('id_user'))->first();
+
+        // Ambil data setting berdasarkan id_setting
+        $setting = DB::table('tb_setting')->where('id_setting', 1)->first();
+
+        // Panggil model dan gunakan method tampil untuk mengambil data dari tb_event
+        $bells = $model->getWhere('tb_bell',['id_bell'=>$id] );
+
+        // Kirim data ke view
+        $data = [
+            'user' => $user,
+            'setting' => $setting,
+            'bells' => $bells,
+        ];
+
+        echo view('header', $data);
+            echo view('menu', $data);
+            echo view('e_bell', $data);
+            echo view('footer');
+    } else {
+        return redirect()->route('login');
+    }
+}
+
+public function aksi_e_bell(Request $request)
+{
+    $model = new M_bel();
+
+    $this->logActivity('User Melakukan Edit Bell');
+
+    // Validate the input
+    $request->validate([
+        'id_bell' => 'required|integer|exists:tb_bell,id_bell',
+        'nama_bell' => 'required|string|max:255',
+        'file_bell' => 'nullable|file|mimes:mp3,wav|max:10240', // Maksimal 10MB
+    ]);
+
+    // Get the existing data
+    $id_bell = $request->input('id_bell');
+    $nama_bell = $request->input('nama_bell');
+
+    // Prepare data to update
+    $data = ['nama_bell' => $nama_bell];
+
+    // Jika file bell diunggah, proses upload dan tambahkan ke data
+    if ($request->hasFile('file_bell')) {
+        $bellFile = $request->file('file_bell');
+        $bellFileName = time() . '_' . $bellFile->getClientOriginalName();
+        $bellFile->move(public_path('img/uploads/'), $bellFileName);
+
+        $data['file_bell'] = 'img/uploads/' . $bellFileName;
+    }
+
+    // Update the data in the tb_bell table
+    $model->edit2('tb_bell', $data, ['id_bell' => $id_bell]);
+
+    return redirect()->route('bell')->with('success', 'Bell berhasil diperbarui.');
+}
+
 
 }

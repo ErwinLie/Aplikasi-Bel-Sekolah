@@ -73,6 +73,13 @@ public function hapus($table, $where)
                     ->get(); 
     }
 
+    public function join3tbl($table1, $table2, $on1, $on2, $table3, $on3, $on4) {
+        $this->setTable($table1);
+        return DB::table($this->table)
+                    ->join($table2, $on1, '=', $on2)
+                    ->join($table3, $on3, '=', $on4)
+                    ->get();
+    }
 
     public function getLogData()
     {

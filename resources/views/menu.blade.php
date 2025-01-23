@@ -257,6 +257,8 @@
 
             <!-- <li><a class="nav-link" href="{{ url ('home/surat_keterlambatan_hadir') }}"><i class="fas fa-fire"></i> <span>Pengumuman</span></a></li> -->
 
+            <li><a class="nav-link" href="{{ url ('home/bell') }}"><i class="fas fa-fire"></i> <span>Bell</span></a></li>
+
             <li><a class="nav-link" href="{{ url ('home/event') }}"><i class="fas fa-fire"></i> <span>Event</span></a></li>
 
             <li><a class="nav-link" href="{{ url ('home/jadwal') }}"><i class="fas fa-fire"></i> <span>Jadwal</span></a></li>

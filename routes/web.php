@@ -38,6 +38,13 @@ Route::get('home/jadwal', [Home::class, 'jadwal'])->name('jadwal');
 
 Route::get('home/hapus_jadwal/{id}', [Home::class, 'hapus_jadwal'])->name('hapus_jadwal');
 
+Route::get('home/bell', [Home::class, 'bell'])->name('bell');
+
+Route::get('home/hapus_bell/{id}', [Home::class, 'hapus_bell'])->name('hapus_bell');
+
+Route::get('home/e_bell/{id}', [Home::class, 'e_bell'])->name('e_bell');
+
+
 //aksi
 
 Route::post('home/aksi_login', [Home::class, 'aksi_login'])->name('aksi_login');
@@ -53,3 +60,7 @@ Route::post('home/aksi_e_event', [Home::class, 'aksi_e_event'])->name('aksi_e_ev
 Route::post('home/aksi_t_jadwal', [Home::class, 'aksi_t_jadwal'])->name('aksi_t_jadwal');
 
 Route::post('home/aksi_e_jadwal', [Home::class, 'aksi_e_jadwal'])->name('aksi_e_jadwal');
+
+Route::post('home/aksi_t_bell', [Home::class, 'aksi_t_bell'])->name('aksi_t_bell');
+
+Route::post('home/aksi_e_bell', [Home::class, 'aksi_e_bell'])->name('aksi_e_bell');
