@@ -290,4 +290,208 @@ public function hapus_activity($id)
     return redirect()->route('activity');
 }
 
+public function event()
+{
+    if (session('id_level') == '1') {
+        $this->logActivity('User Membuka Menu Event');
+
+        $model = new M_bel();
+
+        // Ambil data user berdasarkan id_user dari session
+        $user = DB::table('tb_user')->where('id_user', session('id_user'))->first();
+
+        // Ambil data setting berdasarkan id_setting
+        $setting = DB::table('tb_setting')->where('id_setting', 1)->first();
+
+        // Panggil model dan gunakan method tampil untuk mengambil data dari tb_event
+        $events = $model->tampil('tb_event');
+
+        // Kirim data ke view
+        $data = [
+            'user' => $user,
+            'setting' => $setting,
+            'events' => $events,
+        ];
+
+        echo view('header', $data);
+            echo view('menu', $data);
+            echo view('event', $data);
+            echo view('footer');
+    } else {
+        return redirect()->route('login');
+    }
+}
+
+public function aksi_t_event(Request $request)
+    {
+        $model = new M_bel();
+
+        $this->logActivity('User Melakukan Tambah Event');
+
+        $request->validate([
+            'nama_event' => 'required|string|max:255',
+        ]);
+            
+            $data = [
+                'nama_event' => $request->input('nama_event'),
+            ];
+            
+            $model->tambah('tb_event', $data);
+            return redirect()->route('event')->with('success', 'Data event berhasil ditambahkan.');
+            // print_r($isi);
+        }
+
+        public function aksi_e_event(Request $request)
+        {
+            $model = new M_bel();
+        
+            $this->logActivity('User Melakukan Edit Event');
+        
+            // Validasi input
+            $request->validate([
+                'id_event' => 'required|integer|exists:tb_event,id_event',
+                'nama_event' => 'required|string|max:255',
+            ]);
+        
+            // Ambil data dari form
+            $id_event = $request->input('id_event');
+            $nama_event = $request->input('nama_event');
+        
+            // Data yang akan diperbarui
+            $data = [
+                'nama_event' => $nama_event,
+            ];
+        
+            // Update data di database
+            $model->edit2('tb_event', $data, ['id_event' => $id_event]);
+        
+            // print_r($data);
+            // Redirect kembali ke halaman event dengan pesan sukses
+            return redirect()->route('event')->with('success', 'Data event berhasil diperbarui.');
+        }                
+
+public function hapus_event($id)
+{
+    $this->logActivity('User Melakukan Hapus Event');
+
+    // Hapus data activity berdasarkan id_activity
+    DB::table('tb_event')->where('id_event', $id)->delete();
+
+    return redirect()->route('event');
+}
+
+public function jadwal()
+{
+    if (session('id_level') == '1') {
+        $this->logActivity('User Membuka Menu Jadwal');
+
+        $model = new M_bel();
+
+        // Ambil data user berdasarkan id_user dari session
+        $user = DB::table('tb_user')->where('id_user', session('id_user'))->first();
+
+        // Ambil data setting berdasarkan id_setting
+        $setting = DB::table('tb_setting')->where('id_setting', 1)->first();
+
+        // join tb_jadwal dengan tb_event berdasarkan id_event
+        $jadwals = $model->join('tb_jadwal', 
+        'tb_event', 
+        'tb_jadwal.id_event', 'tb_event.id_event');
+
+        $events= $model->tampil('tb_event');
+
+        // Kirim data ke view
+        $data = [
+            'user' => $user,
+            'setting' => $setting,
+            'jadwals' => $jadwals,
+            'events' => $events,
+        ];
+
+        echo view('header', $data);
+            echo view('menu', $data);
+            echo view('jadwal', $data);
+            echo view('footer');
+    } else {
+        return redirect()->route('login');
+    }
+}
+
+public function aksi_t_jadwal(Request $request)
+{
+    $model = new M_bel();
+
+    $this->logActivity('User Melakukan Tambah Jadwal');
+
+    // Validate the input
+    $request->validate([
+        'id_event' => 'required|integer|exists:tb_event,id_event',
+        'sesi' => 'required|string|max:255',
+        'jam_mulai' => 'required|date_format:H:i',
+        'jam_selesai' => 'required|date_format:H:i',
+    ]);
+
+    // Prepare the data to be inserted
+    $data = [
+        'id_event' => $request->input('id_event'),
+        'sesi' => $request->input('sesi'),
+        'jam_mulai' => $request->input('jam_mulai'),
+        'jam_selesai' => $request->input('jam_selesai'),
+    ];
+
+    // Insert the data into the tb_jadwal table
+    $model->tambah('tb_jadwal', $data);
+
+    // Redirect to jadwal page with success message
+    return redirect()->route('jadwal')->with('success', 'Jadwal berhasil ditambahkan.');
+}
+
+public function aksi_e_jadwal(Request $request)
+{
+    $model = new M_bel();
+
+    $this->logActivity('User Melakukan Edit Jadwal');
+
+    // Validate the input
+    $request->validate([
+        'id_jadwal' => 'required|integer|exists:tb_jadwal,id_jadwal',
+        'id_event' => 'required|integer|exists:tb_event,id_event',
+        'sesi' => 'required|string|max:255',
+        'jam_mulai' => 'required|date_format:H:i',
+        'jam_selesai' => 'required|date_format:H:i',
+    ]);
+
+    // Get the data from the form
+    $id_jadwal = $request->input('id_jadwal');
+    $id_event = $request->input('id_event');
+    $sesi = $request->input('sesi');
+    $jam_mulai = $request->input('jam_mulai');
+    $jam_selesai = $request->input('jam_selesai');
+
+    // Prepare the data to be updated
+    $data = [
+        'id_event' => $id_event,
+        'sesi' => $sesi,
+        'jam_mulai' => $jam_mulai,
+        'jam_selesai' => $jam_selesai,
+    ];
+
+    // Update the data in the tb_jadwal table
+    $model->edit2('tb_jadwal', $data, ['id_jadwal' => $id_jadwal]);
+
+    // Redirect back to jadwal page with success message
+    return redirect()->route('jadwal')->with('success', 'Jadwal berhasil diperbarui.');
+}
+
+
+public function hapus_jadwal($id)
+{
+    $this->logActivity('User Melakukan Hapus Jadwal');
+
+    // Hapus data activity berdasarkan id_activity
+    DB::table('tb_jadwal')->where('id_jadwal', $id)->delete();
+
+    return redirect()->route('jadwal');
+}
+
 }

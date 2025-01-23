@@ -41,6 +41,11 @@ public function edit($table, $where, $data)
     return DB::table($this->table)->where($where)->update($data);
 }
 
+public function edit2($table, $data, $where)
+{
+    return DB::table($table)->where($where)->update($data);
+}
+
 public function hapus($table, $where)
 {
     $this->setTable($table);

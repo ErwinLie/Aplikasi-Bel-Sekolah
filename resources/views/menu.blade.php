@@ -259,11 +259,11 @@
 
             <li><a class="nav-link" href="{{ url ('home/event') }}"><i class="fas fa-fire"></i> <span>Event</span></a></li>
 
-            <li><a class="nav-link" href="{{ url ('home/jadwal') }}"><i class="fas fa-fire"></i> <span>Member</span></a></li>
+            <li><a class="nav-link" href="{{ url ('home/jadwal') }}"><i class="fas fa-fire"></i> <span>Jadwal</span></a></li>
 
-            <li><a class="nav-link" href="{{ url ('home/surat_keterlambatan_hadir') }}"><i class="fas fa-fire"></i> <span>Transaksi</span></a></li>
+            <!-- <li><a class="nav-link" href="{{ url ('home/surat_keterlambatan_hadir') }}"><i class="fas fa-fire"></i> <span>Transaksi</span></a></li>
 
-            <li><a class="nav-link" href="{{ url ('home/surat_keterlambatan_hadir') }}"><i class="fas fa-fire"></i> <span>Kasir</span></a></li>
+            <li><a class="nav-link" href="{{ url ('home/surat_keterlambatan_hadir') }}"><i class="fas fa-fire"></i> <span>Kasir</span></a></li> -->
 
             <!-- <li><a class="nav-link" href="{{ url ('home/surat_keterlambatan_hadir') }}"><i class="fas fa-fire"></i> <span>Kelas</span></a></li>
 
